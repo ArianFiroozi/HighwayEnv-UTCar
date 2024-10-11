@@ -585,8 +585,9 @@ class DefensiveVehicle(LinearVehicle):
 
 class Pedestrian(LinearVehicle):
     LENGTH=2.0
-    MAX_SPEED=1
-    HEADING = random.choice([-1, 1]) * np.pi/2
+    MAX_SPEED=2
+    random.seed(random.randint(0,1000))
+    HEADING = random.choice([-1,1])
 
     def step(self, dt: float) -> None:
         """
@@ -598,12 +599,12 @@ class Pedestrian(LinearVehicle):
 
         :param dt: timestep of integration of the model [s]
         """
-        self.heading=self.HEADING
+        self.heading=-self.HEADING
         self.clip_actions()
         delta_f = self.action["steering"]   
         beta = np.arctan(1 / 2 * np.tan(delta_f))
         v = self.speed * np.array(
-            [0, 1]
+            [0, self.HEADING]
         )
         self.position += v * dt / 3
         if self.impact is not None:

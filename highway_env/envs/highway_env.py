@@ -35,14 +35,14 @@ class HighwayEnv(AbstractEnv):
                 "action": {
                     "type": "DiscreteMetaAction",
                 },
-                "simulation_frequency": 50,
+                "simulation_frequency": 10,
                 "lanes_count": 4,
                 "vehicles_count": 20,
                 "obstacles_percent": 10,
                 "pedesterians_percent": 100,
                 "controlled_vehicles": 1,
                 "initial_lane_id": None,
-                "duration": 400,  # [s]
+                "duration": 40,  # [s]
                 "ego_spacing": 2,
                 "vehicles_density": 1,
                 "obstacles_density": 1,
@@ -111,10 +111,11 @@ class HighwayEnv(AbstractEnv):
                 )
                 vehicle.randomize_behavior()
                 self.road.vehicles.append(vehicle)
-                if not _%(n*self.config['obstacles_percent']//100):
+                if not _%(n/(n*self.config['obstacles_percent']//100)):
                     self.road.vehicles.append(Obstacle.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
-                if not _%(n*self.config['pedesterians_percent']//100):
+                if not _%(n/(n*self.config['pedesterians_percent']//100)):
                     self.road.vehicles.append(Pedestrian.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
+
     
     def _update_objects(self, n=0) -> None:
         """Create some new random vehicles of a given type, and add them on the road."""
@@ -158,11 +159,10 @@ class HighwayEnv(AbstractEnv):
 
         for others in other_per_controlled:
             for _ in range(others):
-                if not _%(others*self.config['obstacles_percent']//100):
+                if not _%(n/(n*self.config['obstacles_percent']//100)):
                     self.road.vehicles.append(Obstacle.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
-                if not _ % (others*self.config['pedesterians_percent'] // 100):
-                    new_obstacle = Pedestrian.create_random(road=self.road, spacing=1 / self.config["obstacles_density"])
-                    self.road.vehicles.append(new_obstacle)
+                if not _%(n/(n*self.config['pedesterians_percent']//100)):
+                    self.road.vehicles.append(Pedestrian.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
 
     def _reward(self, action: Action) -> float:
         """
