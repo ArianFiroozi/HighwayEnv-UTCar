@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import random
 
 from highway_env import utils
 from highway_env.envs.common.abstract import AbstractEnv
@@ -9,6 +10,9 @@ from highway_env.road.road import Road, RoadNetwork
 from highway_env.utils import near_split
 from highway_env.vehicle.controller import ControlledVehicle
 from highway_env.vehicle.kinematics import Vehicle
+from highway_env.vehicle.behavior import Obstacle
+
+# from highway_env.obstacle.kinematics import Obstacle
 
 
 Observation = np.ndarray
@@ -32,12 +36,14 @@ class HighwayEnv(AbstractEnv):
                     "type": "DiscreteMetaAction",
                 },
                 "lanes_count": 4,
-                "vehicles_count": 50,
+                "vehicles_count": 40,
+                "obstacles_percent": 20,
                 "controlled_vehicles": 1,
                 "initial_lane_id": None,
                 "duration": 40,  # [s]
                 "ego_spacing": 2,
                 "vehicles_density": 1,
+                "obstacles_density": 1,
                 "collision_reward": -1,  # The reward received when colliding with a vehicle.
                 "right_lane_reward": 0.1,  # The reward received when driving on the right-most lanes, linearly mapped to
                 # zero for other lanes.
@@ -86,12 +92,15 @@ class HighwayEnv(AbstractEnv):
             self.controlled_vehicles.append(vehicle)
             self.road.vehicles.append(vehicle)
 
+            obstacle_count=self.config['obstacles_percent']
             for _ in range(others):
                 vehicle = other_vehicles_type.create_random(
                     self.road, spacing=1 / self.config["vehicles_density"]
                 )
                 vehicle.randomize_behavior()
                 self.road.vehicles.append(vehicle)
+                if not _%(self.config['vehicles_count']*self.config['obstacles_percent']//100):
+                    self.road.vehicles.append(Obstacle.create_random(road=self.road, speed=0, spacing=1 / self.config["obstacles_density"]))
 
     def _reward(self, action: Action) -> float:
         """

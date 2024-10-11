@@ -580,3 +580,27 @@ class DefensiveVehicle(LinearVehicle):
         MERGE_ACC_GAIN / (MERGE_VEL_RATIO * MERGE_TARGET_VEL),
         2.0,
     ]
+
+
+class Obstacle(LinearVehicle):
+    LANE_CHANGE_MIN_ACC_GAIN = 1.0  # [m/s2]
+    MERGE_ACC_GAIN = 1.2
+    MERGE_VEL_RATIO = 0.75
+    MERGE_TARGET_VEL = 30
+    ACCELERATION_PARAMETERS = [
+        MERGE_ACC_GAIN / ((1 - MERGE_VEL_RATIO) * MERGE_TARGET_VEL),
+        MERGE_ACC_GAIN / (MERGE_VEL_RATIO * MERGE_TARGET_VEL),
+        2.0,
+    ]
+
+    # @classmethod
+    # def create_random(
+    #     cls,
+    #     road: Road,
+    #     speed: float = 0,
+    #     lane_from: str | None = None,
+    #     lane_to: str | None = None,
+    #     lane_id: int | None = None,
+    #     spacing: float = 1,
+    # ):
+    #     super().create_random(road=road, speed=speed)
