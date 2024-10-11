@@ -584,3 +584,4 @@ class DefensiveVehicle(LinearVehicle):
 
 class Obstacle(LinearVehicle):
     LENGTH=2.0
+    MAX_SPEED=0

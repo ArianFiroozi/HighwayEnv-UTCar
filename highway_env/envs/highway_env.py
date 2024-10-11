@@ -100,7 +100,7 @@ class HighwayEnv(AbstractEnv):
                 vehicle.randomize_behavior()
                 self.road.vehicles.append(vehicle)
                 if not _%(self.config['vehicles_count']*self.config['obstacles_percent']//100):
-                    self.road.vehicles.append(Obstacle.create_random(road=self.road, speed=0, spacing=1 / self.config["obstacles_density"]))
+                    self.road.vehicles.append(Obstacle.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
 
     def _reward(self, action: Action) -> float:
         """

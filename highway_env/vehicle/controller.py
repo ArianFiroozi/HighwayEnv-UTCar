@@ -256,7 +256,7 @@ class ControlledVehicle(Vehicle):
 class MDPVehicle(ControlledVehicle):
     """A controlled vehicle with a specified discrete range of allowed target speeds."""
 
-    DEFAULT_TARGET_SPEEDS = np.linspace(20, 30, 3)
+    DEFAULT_TARGET_SPEEDS = np.linspace(0, 40, 5)
 
     def __init__(
         self,
@@ -310,7 +310,7 @@ class MDPVehicle(ControlledVehicle):
             return
         self.speed_index = int(
             np.clip(self.speed_index, 0, self.target_speeds.size - 1)
-        )
+        )   
         self.target_speed = self.index_to_speed(self.speed_index)
         super().act()
 
