@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import random
 
 from highway_env import utils
 from highway_env.road.road import LaneIndex, Road, Route
@@ -581,6 +582,37 @@ class DefensiveVehicle(LinearVehicle):
         2.0,
     ]
 
+
+class Pedestrian(LinearVehicle):
+    LENGTH=2.0
+    MAX_SPEED=1
+    HEADING = random.choice([-1, 1]) * np.pi/2
+
+    def step(self, dt: float) -> None:
+        """
+        Propagate the vehicle state given its actions.
+
+        Integrate a modified bicycle model with a 1st-order response on the steering wheel dynamics.
+        If the vehicle is crashed, the actions are overridden with erratic steering and braking until complete stop.
+        The vehicle's current lane is updated.
+
+        :param dt: timestep of integration of the model [s]
+        """
+        self.heading=self.HEADING
+        self.clip_actions()
+        delta_f = self.action["steering"]   
+        beta = np.arctan(1 / 2 * np.tan(delta_f))
+        v = self.speed * np.array(
+            [0, 1]
+        )
+        self.position += v * dt / 3
+        if self.impact is not None:
+            self.position += self.impact
+            self.crashed = True
+            self.impact = None
+        # self.heading += self.speed * np.sin(beta) / (self.LENGTH / 2) * dt
+        self.speed += self.action["acceleration"] * dt
+        self.on_state_update()
 
 class Obstacle(LinearVehicle):
     LENGTH=2.0

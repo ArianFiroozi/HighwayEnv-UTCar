@@ -7,7 +7,7 @@ import numpy as np
 import pygame
 
 from highway_env.utils import Vector
-from highway_env.vehicle.behavior import IDMVehicle, LinearVehicle
+from highway_env.vehicle.behavior import IDMVehicle, LinearVehicle, Obstacle, Pedestrian
 from highway_env.vehicle.controller import MDPVehicle
 from highway_env.vehicle.dynamics import BicycleVehicle
 from highway_env.vehicle.kinematics import Vehicle
@@ -235,13 +235,15 @@ class VehicleGraphics:
             color = vehicle.color
         elif vehicle.crashed:
             color = cls.RED
-        elif isinstance(vehicle, LinearVehicle):
-            color = cls.YELLOW
-        elif isinstance(vehicle, IDMVehicle):
-            color = cls.BLUE
         elif isinstance(vehicle, MDPVehicle):
             color = cls.EGO_COLOR
+        elif isinstance(vehicle, Pedestrian):
+            color = cls.YELLOW
         elif isinstance(vehicle, Obstacle):
+            color = cls.PURPLE
+        elif isinstance(vehicle, IDMVehicle):
+            color = cls.BLUE
+        elif isinstance(vehicle, LinearVehicle):
             color = cls.YELLOW
         if transparent:
             color = (color[0], color[1], color[2], 30)
