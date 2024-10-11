@@ -35,10 +35,11 @@ class HighwayEnv(AbstractEnv):
                 "action": {
                     "type": "DiscreteMetaAction",
                 },
+                "simulation_frequency": 50,
                 "lanes_count": 4,
-                "vehicles_count": 40,
-                "obstacles_percent": 50,
-                "pedesterians_percent": 50,
+                "vehicles_count": 20,
+                "obstacles_percent": 10,
+                "pedesterians_percent": 100,
                 "controlled_vehicles": 1,
                 "initial_lane_id": None,
                 "duration": 400,  # [s]
@@ -75,8 +76,8 @@ class HighwayEnv(AbstractEnv):
 
     def step(self, action: Action):
         self.step_count+=1
-        if not self.step_count%50:
-            self._update_pedestrians()
+        if not self.step_count%20:
+            self._update_non_vehicle()
         return super().step(action)
 
     def _init_objects(self, n=0) -> None:
@@ -125,9 +126,11 @@ class HighwayEnv(AbstractEnv):
             n, num_bins=self.config["controlled_vehicles"]
         )
 
+        self.road.vehicles = [vehicle for vehicle in self.road.vehicles if not isinstance(vehicle,Obstacle)] # clear if you need previous peds
+        self.road.vehicles = [vehicle for vehicle in self.road.vehicles if not isinstance(vehicle,Pedestrian)] # clear if you need previous peds
+
         for others in other_per_controlled:
             self.road.vehicles=[self.road.vehicles[0]]
-            obstacle_count=self.config['obstacles_percent']
             for _ in range(others):
                 vehicle = other_vehicles_type.create_random(
                     self.road, spacing=1 / self.config["vehicles_density"]
@@ -136,8 +139,11 @@ class HighwayEnv(AbstractEnv):
                 self.road.vehicles.append(vehicle)
                 if not _%(n*self.config['obstacles_percent']//100):
                     self.road.vehicles.append(Obstacle.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
+                if not _ % (n * self.config['pedesterians_percent'] // 100):
+                    new_obstacle = Pedestrian.create_random(road=self.road, spacing=1 / self.config["obstacles_density"])
+                    self.road.vehicles.append(new_obstacle)
     
-    def _update_pedestrians(self, n=0) -> None:
+    def _update_non_vehicle(self, n=0) -> None:
         """Create some new random vehicles of a given type, and add them on the road."""
         if n==0:
             n=self.config['vehicles_count']
@@ -146,10 +152,15 @@ class HighwayEnv(AbstractEnv):
         other_per_controlled = near_split(
             n, num_bins=self.config["controlled_vehicles"]
         )
+
+        self.road.vehicles = [vehicle for vehicle in self.road.vehicles if not isinstance(vehicle,Obstacle)] # clear if you need previous peds
         self.road.vehicles = [vehicle for vehicle in self.road.vehicles if not isinstance(vehicle,Pedestrian)] # clear if you need previous peds
+
         for others in other_per_controlled:
             for _ in range(others):
-                if not _ % (n * self.config['pedesterians_percent'] // 100):
+                if not _%(others*self.config['obstacles_percent']//100):
+                    self.road.vehicles.append(Obstacle.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
+                if not _ % (others*self.config['pedesterians_percent'] // 100):
                     new_obstacle = Pedestrian.create_random(road=self.road, spacing=1 / self.config["obstacles_density"])
                     self.road.vehicles.append(new_obstacle)
 
