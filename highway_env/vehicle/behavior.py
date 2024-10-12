@@ -617,7 +617,3 @@ class Pedestrian(LinearVehicle):
             self.impact = None
         self.speed += self.action["acceleration"] * dt
         self.on_state_update()
-
-class Obstacle(LinearVehicle):
-    LENGTH=2.0
-    MAX_SPEED=0

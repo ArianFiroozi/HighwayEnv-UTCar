@@ -10,7 +10,8 @@ from highway_env.road.road import Road, RoadNetwork
 from highway_env.utils import near_split
 from highway_env.vehicle.controller import ControlledVehicle
 from highway_env.vehicle.kinematics import Vehicle
-from highway_env.vehicle.behavior import Obstacle, Pedestrian
+from highway_env.vehicle.behavior import Pedestrian
+from highway_env.vehicle.objects import Landmark, Obstacle
 
 # from highway_env.obstacle.kinematics import Obstacle
 
@@ -42,7 +43,7 @@ class HighwayEnv(AbstractEnv):
                 "pedesterians_percent": 100,
                 "controlled_vehicles": 1,
                 "initial_lane_id": None,
-                "duration": 40,  # [s]
+                "duration": 400,  # [s]
                 "ego_spacing": 2,
                 "vehicles_density": 1,
                 "obstacles_density": 1,
@@ -156,7 +157,19 @@ class HighwayEnv(AbstractEnv):
 
     def __add_non_vehicles(self, idx, vehicles_count):
             if not idx%(vehicles_count//(vehicles_count*self.config['obstacles_percent']//100)):
-                self.road.vehicles.append(Obstacle.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
+                _from = self.road.np_random.choice(list(self.road.network.graph.keys()))
+                _to = self.road.np_random.choice(list(self.road.network.graph[_from].keys()))
+                _id = (
+                    self.road.np_random.choice(len(self.road.network.graph[_from][_to]))
+                )
+                lane = self.road.network.get_lane((_from, _to, _id))
+                x0 = (
+                    np.max([lane.local_coordinates(v.position)[0] for v in self.road.vehicles])
+                    if len(self.road.vehicles)
+                    else 10
+                )
+                x0 += 10 * self.road.np_random.uniform(0.9, 1.1)
+                self.road.objects.append(Obstacle(road=self.road, position=lane.position(x0, 0)))
             if not idx%(vehicles_count//(vehicles_count*self.config['pedesterians_percent']//100)):
                 self.road.vehicles.append(Pedestrian.create_random(road=self.road, spacing=1 / self.config["pedestrians_density"]))
 
