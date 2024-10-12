@@ -147,6 +147,7 @@ class IDMVehicle(ControlledVehicle):
         """
         self.timer += dt
         super().step(dt)
+        self.crashed=False
 
     def acceleration(
         self,
@@ -602,7 +603,6 @@ class Pedestrian(LinearVehicle):
         if self.HEADING==-2 or random.randint(0,40)==0: #TODO: fix bad code
             self.HEADING=random.choice([-1,1])
 
-
         self.heading=-self.HEADING
         self.clip_actions()
         delta_f = self.action["steering"]   
@@ -611,12 +611,10 @@ class Pedestrian(LinearVehicle):
             [0, self.HEADING]
         )
         self.position += v * dt / 3
-        print("heading to: ", self.HEADING)
         if self.impact is not None:
             self.position += self.impact
-            self.crashed = True
+            self.crashed = False
             self.impact = None
-        # self.heading += self.speed * np.sin(beta) / (self.LENGTH / 2) * dt
         self.speed += self.action["acceleration"] * dt
         self.on_state_update()
 
