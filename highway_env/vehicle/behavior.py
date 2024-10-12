@@ -587,7 +587,7 @@ class Pedestrian(LinearVehicle):
     LENGTH=2.0
     MAX_SPEED=2
     random.seed(random.randint(0,1000))
-    HEADING = random.choice([-1,1])
+    HEADING = -2
 
     def step(self, dt: float) -> None:
         """
@@ -599,6 +599,10 @@ class Pedestrian(LinearVehicle):
 
         :param dt: timestep of integration of the model [s]
         """
+        if self.HEADING==-2 or random.randint(0,40)==0: #TODO: fix bad code
+            self.HEADING=random.choice([-1,1])
+
+
         self.heading=-self.HEADING
         self.clip_actions()
         delta_f = self.action["steering"]   
@@ -607,6 +611,7 @@ class Pedestrian(LinearVehicle):
             [0, self.HEADING]
         )
         self.position += v * dt / 3
+        print("heading to: ", self.HEADING)
         if self.impact is not None:
             self.position += self.impact
             self.crashed = True

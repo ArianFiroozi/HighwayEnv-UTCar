@@ -76,7 +76,7 @@ class HighwayEnv(AbstractEnv):
 
     def step(self, action: Action):
         self.step_count+=1
-        if not self.step_count%20:
+        if not self.step_count%50:
             self._update_non_vehicle()
         return super().step(action)
 
@@ -116,7 +116,6 @@ class HighwayEnv(AbstractEnv):
                 if not _%(n/(n*self.config['pedesterians_percent']//100)):
                     self.road.vehicles.append(Pedestrian.create_random(road=self.road, spacing=1 / self.config["obstacles_density"]))
 
-    
     def _update_objects(self, n=0) -> None:
         """Create some new random vehicles of a given type, and add them on the road."""
         if n==0:
